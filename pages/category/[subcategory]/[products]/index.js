@@ -1,35 +1,45 @@
-import { useQuery } from '@apollo/client'
-import Head from 'next/head'
-import Image from 'next/image'
-import CustomCard from '../../../../components/Card';
-import Grid from '@mui/material/Grid';
-import { GET_CATEGORY_PRODUCT } from '../../../../config/apollo/Schema'; 
-import { useRouter } from 'next/dist/client/router';
-import Link from 'next/link'
-import { Alert, CircularProgress  } from '@mui/material';
+import CustomCard from "../../../../components/Card";
+import Grid from "@mui/material/Grid";
+import { GET_CATEGORY_PRODUCT } from "../../../../config/apollo/Schema";
+import Link from "next/link";
+import { client } from "../../../../config/apollo/GraphqlProvider";
 
-const Categories = () => {
-    const params = useRouter()
-    const { loading, error, data } = useQuery(GET_CATEGORY_PRODUCT,{
-      variables:{
-        categoryId:params.query.products
-      }
-    });
-    if (loading) return <CircularProgress />;
-    if (error) return <p>Error :(</p>;
-    return (
-      <>
-        <h1 className="text-xl mb-14"><Link href="/">Home</Link> / <span className="text-gray-500">{data.category.name}</span> </h1>
-        <Grid container spacing={2}>
-        {(data.category.products.items).map((a,i)=>(
-           <Grid item xs={12} md={4} key={i}>
-           <CustomCard  name={a.name} link={`/category/detail/${a.url_key}`} image={a.image.url} desc={a.description.html} price={a.price_range.minimum_price.final_price.value} res={a} show cart/>
+const Categories = ({ products }) => {
+  return (
+    <>
+      <h1 className="text-xl mb-14">
+        <Link href="/">Home</Link> /{" "}
+        <span className="text-gray-500">{products.category.name}</span>{" "}
+      </h1>
+      <Grid container spacing={2}>
+        {products.category.products.items.map((a, i) => (
+          <Grid item xs={12} md={4} key={i}>
+            <CustomCard
+              name={a.name}
+              link={`/category/detail/${a.url_key}`}
+              image={a.image.url}
+              price={a.price_range.minimum_price.final_price.value}
+              res={a}
+              show
+              cart
+            />
           </Grid>
-          ))}
-        </Grid>
-       
-      </>
-    )
+        ))}
+      </Grid>
+    </>
+  );
+};
+
+export async function getServerSideProps(context) {
+  const { data } = await client.query({
+    query: GET_CATEGORY_PRODUCT,
+    variables: { categoryId: context.params.products },
+  });
+  return {
+    props: {
+      products: data,
+    },
+  };
 }
 
-export default Categories
+export default Categories;
