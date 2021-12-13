@@ -4,11 +4,20 @@ import { GET_CATEGORIES } from "../../../config/apollo/Schema";
 import Grid from "@mui/material/Grid";
 import Link from "next/link";
 import { client } from "../../../config/apollo/GraphqlProvider";
+import { makeStyles } from "@mui/styles";
+
+const useStyles = makeStyles({
+  title: {
+    fontSize: "20px",
+    marginBottom: "30px",
+  },
+});
 
 export default function Home({ subCategories }) {
+  const classes = useStyles();
   return (
     <>
-      <h1 className="text-xl mb-14">
+      <h1 className={classes.title}>
         <Link href="/">Home</Link> /{" "}
         <span className="text-gray-500">{subCategories.category.name}</span>{" "}
       </h1>
